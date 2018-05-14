@@ -1,0 +1,221 @@
+1) Накатить бэкап базы (1)
+lyudmila@lyudmila-Lenovo-IdeaPad-Z500:~/Learning/bsa2018/mongodb$ mongoimport --db hometaskDB --file users.json
+connected to: 127.0.0.1
+no collection specified!
+using filename 'users' as collection.
+2018-05-13T18:14:32.856+0300 check 9 844
+2018-05-13T18:14:32.856+0300 imported 844 objects
+
+> show dbs
+admin       (empty)
+hometaskDB  0.078GB
+local       0.078GB
+
+> db.users.count()
+844
+
+2)Найти средний возраст людей в системе
+> db.users.aggregate([{$group:{_id:null,avgQuantity: { $avg: "$age"}}}])
+{ "_id" : null, "avgQuantity" : 30.38862559241706 }
+
+3)Найти средний возраст в штате Аляска (1.5)
+> db.users.find({address:{$regex:/.*Alaska.*/}})
+
+> db.users.aggregate({$match:{address:{$regex:/.*Alaska.*/}}},{$group:{_id:null,avgQuantity: { $avg: "$age"}}})
+{ "_id" : null, "avgQuantity" : 31.5 }
+
+4)Начиная от Math.ceil(avg + avg_alaska) найти первого человека с другом по имени Деннис (1.5)
+ > db.users.find({"friends.name":{$regex:/.* Dennis.*/}}).count()
+
+
+> db.users.find({$and:[{age:{$gt:32}},{"friends.name":{$regex:/. Dennis.*/}}]},{_id:1,name:1,age:1,friends:1,address:1}).pretty()
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd382"),
+	"age" : 36,
+	"name" : "Campos House",
+	"address" : "525 Irving Street, Strong, Maine, 1856",
+	"friends" : [
+		{
+			"id" : 0,
+			"name" : "Leonor Blevins"
+		},
+		{
+			"id" : 1,
+			"name" : "Boyle Dennis"
+		},
+		{
+			"id" : 2,
+			"name" : "Sybil Walton"
+		}
+	]
+}
+
+или > db.users.aggregate({$match:{$and:[{age:{$lt:62}},{"friends.name":{$regex:/. Dennis.*/}}]}},{$limit:1}).pretty()
+
+В базе люди младше 40 лет. А Math.ceil(avg + avg_alaska) = Math.ceil(30.38862559241706 + 31,5) = 62. Что значит найти первого человека, искать вниз первого попавшего в запрос по {$limit:1}?
+
+5)Найти людей из того же штата, что и предыдущий человек
+> db.users.find({address:{$regex:/.*Maine.*/}}).count();
+14
+
+
+> db.users.find({address:{$regex:/.*Maine.*/}},{_id:1,name:1,age:1,address:1}).pretty()
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd382"),
+	"age" : 36,
+	"name" : "Campos House",
+	"address" : "525 Irving Street, Strong, Maine, 1856"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd3bd"),
+	"age" : 28,
+	"name" : "Galloway Mckay",
+	"address" : "441 Livingston Street, Rosine, Maine, 4877"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd3f8"),
+	"age" : 28,
+	"name" : "Richard Lancaster",
+	"address" : "761 Russell Street, Volta, Maine, 8636"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd442"),
+	"age" : 22,
+	"name" : "Whitfield Yates",
+	"address" : "711 Farragut Place, Steinhatchee, Maine, 2101"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd46b"),
+	"age" : 25,
+	"name" : "Jimenez Kirk",
+	"address" : "516 Conover Street, Takilma, Maine, 3150"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd4a2"),
+	"age" : 22,
+	"name" : "Jodi Mcpherson",
+	"address" : "610 Estate Road, Wells, Maine, 3095"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd4dc"),
+	"age" : 39,
+	"name" : "Concetta Neal",
+	"address" : "415 Osborn Street, Cavalero, Maine, 5113"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd516"),
+	"age" : 30,
+	"name" : "Cristina Hopper",
+	"address" : "987 Huron Street, Vernon, Maine, 3063"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd550"),
+	"age" : 23,
+	"name" : "Rosalyn Solomon",
+	"address" : "223 Gerald Court, Harleigh, Maine, 9447"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd58a"),
+	"age" : 21,
+	"name" : "Mcbride Butler",
+	"address" : "461 Cozine Avenue, Devon, Maine, 2535"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd5c7"),
+	"age" : 37,
+	"name" : "Gaines Wheeler",
+	"address" : "976 Bartlett Street, Glendale, Maine, 369"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd5ff"),
+	"age" : 33,
+	"name" : "Lucia Short",
+	"address" : "527 Dewey Place, Elrama, Maine, 4262"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd63a"),
+	"age" : 28,
+	"name" : "Brandi Griffin",
+	"address" : "212 Lefferts Avenue, Bancroft, Maine, 4346"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd672"),
+	"age" : 34,
+	"name" : "Carrillo Watkins",
+	"address" : "931 Trucklemans Lane, Reno, Maine, 9757"
+}
+
+ - Посмотреть какой фрукт любят больше всего в этом штате (аггрегация)
+> db.users.aggregate([{ "$match": {address:{$regex:/.*Maine.*/}}},{ "$group": {"_id": {"favouriteFruit":"$favoriteFruit"},"count": { "$sum": 1 }}}])
+{ "_id" : { "favouriteFruit" : "apple" }, "count" : 6 }
+{ "_id" : { "favouriteFruit" : "strawberry" }, "count" : 3 }
+{ "_id" : { "favouriteFruit" : "banana" }, "count" : 5 }
+
+
+6) Найти саммого раннего зарегистрировавшегося пользователя с таким любимым фруктом
+> db.users.find({favoriteFruit:{$regex:/apple/}},{_id:null, name:1, favoriteFruit:1, age:1, registered:1}).pretty()
+
+> db.users.aggregate([{$group:{_id:'$favoriteFruit', firstRegistered: { $min: "$registered" }}}])
+{ "_id" : "banana", "firstRegistered" : "2014-01-01T12:56:22 -02:00" }
+{ "_id" : "strawberry", "firstRegistered" : "2014-01-02T02:39:51 -02:00" }
+{ "_id" : "apple", "firstRegistered" : "2014-01-02T10:16:56 -02:00" }
+
+> db.users.aggregate([{$match:{favoriteFruit:{$regex:/apple/}}},{$group:{_id:'$favoriteFruit', firstRegistered: { $min: "$registered" }}},{_id:1,name:1,age:1,favoriteFruit:1,registered:1}])
+{ "_id" : "apple", "firstRegistered" : "2014-01-02T10:16:56 -02:00" }
+
+
+> db.users.find({favoriteFruit:{$regex:/apple/}, registered: { $eq: "2014-01-02T10:16:56 -02:00"}},{_id:1, name:1, favoriteFruit:1, age:1, registered:1}).pretty()
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd568"),
+	"age" : 37,
+	"name" : "Magdalena Compton",
+	"registered" : "2014-01-02T10:16:56 -02:00",
+	"favoriteFruit" : "apple"
+}
+
+7) Добавить этому пользовелю свойтво: { features: 'first apple eater' }
+> db.users.update({_id:ObjectId("5adf3c1544abaca147cdd568")},{$set:{features:'first apple eater'}},{upsert:1})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.users.find({favoriteFruit:{$regex:/apple/}, registered: { $eq: "2014-01-02T10:16:56 -02:00"}},{_id:1, name:1, features:1}).pretty()
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd568"),
+	"name" : "Magdalena Compton",
+	"features" : "first apple eater"
+}
+
+8) Удалить всех любителей клубники (написать количество удаленных пользователей)
+> db.users.find({favoriteFruit:{$eq:"strawberry"}}).count()
+253
+
+> db.users.remove({favoriteFruit:{$eq:"strawberry"}})
+WriteResult({ "nRemoved" : 253 })
+
+> db.users.find({favoriteFruit:{$eq:"strawberry"}}).count()
+0
+
+
+
+
+db.users.aggregate({$match:{$and:[{age:{$ls:62}},{"friends.name":{$regex:/. Dennis.*/}}]}},{$limit:3}).pretty()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
