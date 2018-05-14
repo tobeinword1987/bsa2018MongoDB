@@ -197,10 +197,6 @@ WriteResult({ "nRemoved" : 253 })
 
 
 
-db.users.aggregate({$match:{$and:[{age:{$ls:62}},{"friends.name":{$regex:/. Dennis.*/}}]}},{$limit:3}).pretty()
-
-
-
 
 
 
