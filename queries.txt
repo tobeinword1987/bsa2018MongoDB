@@ -1,4 +1,4 @@
-1) Накатить бэкап базы (1)
+1) Накатить бэкап базы 
 lyudmila@lyudmila-Lenovo-IdeaPad-Z500:~/Learning/bsa2018/mongodb$ mongoimport --db hometaskDB --file users.json
 connected to: 127.0.0.1
 no collection specified!
@@ -14,143 +14,172 @@ local       0.078GB
 > db.users.count()
 844
 
-2)Найти средний возраст людей в системе
-> db.users.aggregate([{$group:{_id:null,avgQuantity: { $avg: "$age"}}}])
+2) Найти средний возраст людей в системе
+> db.users.aggregate([{$group:{_id : null, avgQuantity : { $avg: "$age"}}}])
 { "_id" : null, "avgQuantity" : 30.38862559241706 }
 
-3)Найти средний возраст в штате Аляска (1.5)
+3) Найти средний возраст в штате Аляска
 > db.users.find({address:{$regex:/.*Alaska.*/}})
 
 > db.users.aggregate({$match:{address:{$regex:/.*Alaska.*/}}},{$group:{_id:null,avgQuantity: { $avg: "$age"}}})
 { "_id" : null, "avgQuantity" : 31.5 }
 
-4)Начиная от Math.ceil(avg + avg_alaska) найти первого человека с другом по имени Деннис (1.5)
- > db.users.find({"friends.name":{$regex:/.* Dennis.*/}}).count()
+4) Начиная от Math.ceil(avg + avg_alaska) найти первого человека с другом по имени Деннис
+> db.users.find({"friends.name":{$regex:/.* Dennis.*/}}).count()
+3
 
-
-> db.users.find({$and:[{age:{$gt:32}},{"friends.name":{$regex:/. Dennis.*/}}]},{_id:1,name:1,age:1,friends:1,address:1}).pretty()
+> db.users.aggregate({$skip:62},{$match:{"friends.name":{$regex:/. Dennis.*/}}}).pretty()
 {
-	"_id" : ObjectId("5adf3c1544abaca147cdd382"),
-	"age" : 36,
-	"name" : "Campos House",
-	"address" : "525 Irving Street, Strong, Maine, 1856",
+	"_id" : ObjectId("5adf3c1544abaca147cdd47c"),
+	"index" : 306,
+	"guid" : "709aa50f-70ff-4f06-8b33-3afbd5302c0a",
+	"isActive" : false,
+	"balance" : "$3,385.51",
+	"picture" : "http://placehold.it/32x32",
+	"age" : 21,
+	"eyeColor" : "brown",
+	"name" : "Esperanza Blevins",
+	"gender" : "female",
+	"company" : "XURBAN",
+	"email" : "esperanzablevins@xurban.com",
+	"phone" : "+1 (975) 588-2297",
+	"address" : "659 Oceanic Avenue, Collins, Utah, 6277",
+	"about" : "Culpa velit esse eiusmod labore tempor aute labore amet quis ut consectetur quis esse fugiat. Irure ipsum nulla Lorem amet proident sint. Incididunt irure veniam qui veniam adipisicing eu velit mollit non dolore nulla consequat deserunt. Labore deserunt amet eu aliquip elit quis dolore irure cupidatat amet.\r\n",
+	"registered" : "2015-06-02T03:54:44 -03:00",
+	"latitude" : 55.103336,
+	"longitude" : -104.071644,
+	"tags" : [
+		"consequat",
+		"aliqua",
+		"labore",
+		"cupidatat",
+		"culpa",
+		"eiusmod",
+		"exercitation"
+	],
 	"friends" : [
 		{
 			"id" : 0,
-			"name" : "Leonor Blevins"
+			"name" : "Charles Dennis"
 		},
 		{
 			"id" : 1,
-			"name" : "Boyle Dennis"
+			"name" : "Arlene Walton"
 		},
 		{
 			"id" : 2,
-			"name" : "Sybil Walton"
+			"name" : "Trisha Long"
 		}
-	]
+	],
+	"greeting" : "Hello, Esperanza Blevins! You have 6 unread messages.",
+	"favoriteFruit" : "banana"
 }
 
-или > db.users.aggregate({$match:{$and:[{age:{$lt:62}},{"friends.name":{$regex:/. Dennis.*/}}]}},{$limit:1}).pretty()
 
-В базе люди младше 40 лет. А Math.ceil(avg + avg_alaska) = Math.ceil(30.38862559241706 + 31,5) = 62. Что значит найти первого человека, искать вниз первого попавшего в запрос по {$limit:1}?
+5) Найти людей из того же штата, что и предыдущий человек
 
-5)Найти людей из того же штата, что и предыдущий человек
-> db.users.find({address:{$regex:/.*Maine.*/}}).count();
-14
+> db.users.find({address:{$regex:/.*Utah.*/}}).count();
+15
 
 
-> db.users.find({address:{$regex:/.*Maine.*/}},{_id:1,name:1,age:1,address:1}).pretty()
+> db.users.find({address:{$regex:/.*Utah.*/}},{_id:1,name:1,age:1,address:1}).pretty()
 {
-	"_id" : ObjectId("5adf3c1544abaca147cdd382"),
-	"age" : 36,
-	"name" : "Campos House",
-	"address" : "525 Irving Street, Strong, Maine, 1856"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd3bd"),
-	"age" : 28,
-	"name" : "Galloway Mckay",
-	"address" : "441 Livingston Street, Rosine, Maine, 4877"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd3f8"),
-	"age" : 28,
-	"name" : "Richard Lancaster",
-	"address" : "761 Russell Street, Volta, Maine, 8636"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd442"),
-	"age" : 22,
-	"name" : "Whitfield Yates",
-	"address" : "711 Farragut Place, Steinhatchee, Maine, 2101"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd46b"),
-	"age" : 25,
-	"name" : "Jimenez Kirk",
-	"address" : "516 Conover Street, Takilma, Maine, 3150"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd4a2"),
-	"age" : 22,
-	"name" : "Jodi Mcpherson",
-	"address" : "610 Estate Road, Wells, Maine, 3095"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd4dc"),
-	"age" : 39,
-	"name" : "Concetta Neal",
-	"address" : "415 Osborn Street, Cavalero, Maine, 5113"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd516"),
-	"age" : 30,
-	"name" : "Cristina Hopper",
-	"address" : "987 Huron Street, Vernon, Maine, 3063"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd550"),
-	"age" : 23,
-	"name" : "Rosalyn Solomon",
-	"address" : "223 Gerald Court, Harleigh, Maine, 9447"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd58a"),
-	"age" : 21,
-	"name" : "Mcbride Butler",
-	"address" : "461 Cozine Avenue, Devon, Maine, 2535"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd5c7"),
-	"age" : 37,
-	"name" : "Gaines Wheeler",
-	"address" : "976 Bartlett Street, Glendale, Maine, 369"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd5ff"),
-	"age" : 33,
-	"name" : "Lucia Short",
-	"address" : "527 Dewey Place, Elrama, Maine, 4262"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd63a"),
-	"age" : 28,
-	"name" : "Brandi Griffin",
-	"address" : "212 Lefferts Avenue, Bancroft, Maine, 4346"
-}
-{
-	"_id" : ObjectId("5adf3c1544abaca147cdd672"),
+	"_id" : ObjectId("5adf3c1544abaca147cdd35b"),
 	"age" : 34,
-	"name" : "Carrillo Watkins",
-	"address" : "931 Trucklemans Lane, Reno, Maine, 9757"
+	"name" : "Abigail Boyer",
+	"address" : "413 Myrtle Avenue, Blue, Utah, 6715"
 }
-
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd39b"),
+	"age" : 27,
+	"name" : "Tamra Gilmore",
+	"address" : "735 Fayette Street, Sanford, Utah, 9834"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd3d7"),
+	"age" : 40,
+	"name" : "Horn Hubbard",
+	"address" : "198 Meserole Avenue, Geyserville, Utah, 3072"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd408"),
+	"age" : 26,
+	"name" : "Cherry Villarreal",
+	"address" : "772 Porter Avenue, Richford, Utah, 3055"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd443"),
+	"age" : 39,
+	"name" : "Patti Nguyen",
+	"address" : "847 Frank Court, Graball, Utah, 6542"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd47c"),
+	"age" : 21,
+	"name" : "Esperanza Blevins",
+	"address" : "659 Oceanic Avenue, Collins, Utah, 6277"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd4b5"),
+	"age" : 29,
+	"name" : "Shauna Marks",
+	"address" : "275 Knapp Street, Enlow, Utah, 4265"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd4f0"),
+	"age" : 32,
+	"name" : "Weaver Kim",
+	"address" : "638 Bogart Street, Norvelt, Utah, 3976"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd52a"),
+	"age" : 30,
+	"name" : "Charity Gordon",
+	"address" : "656 Beacon Court, Detroit, Utah, 6771"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd563"),
+	"age" : 20,
+	"name" : "Tamera Chandler",
+	"address" : "386 Conklin Avenue, Lisco, Utah, 8731"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd59e"),
+	"age" : 39,
+	"name" : "Young Douglas",
+	"address" : "242 Hyman Court, Westmoreland, Utah, 4276"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd5d7"),
+	"age" : 26,
+	"name" : "Miller Mcclain",
+	"address" : "930 Fay Court, Vincent, Utah, 7321"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd61b"),
+	"age" : 29,
+	"name" : "Stefanie Zamora",
+	"address" : "604 Driggs Avenue, Keller, Utah, 6464"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd64b"),
+	"age" : 27,
+	"name" : "Jeanette Davis",
+	"address" : "836 Broome Street, Darbydale, Utah, 8036"
+}
+{
+	"_id" : ObjectId("5adf3c1544abaca147cdd685"),
+	"age" : 36,
+	"name" : "Mara Salazar",
+	"address" : "654 Eastern Parkway, Verdi, Utah, 6569"
+}
  - Посмотреть какой фрукт любят больше всего в этом штате (аггрегация)
-> db.users.aggregate([{ "$match": {address:{$regex:/.*Maine.*/}}},{ "$group": {"_id": {"favouriteFruit":"$favoriteFruit"},"count": { "$sum": 1 }}}])
-{ "_id" : { "favouriteFruit" : "apple" }, "count" : 6 }
+> db.users.aggregate([{ "$match": {address:{$regex:/.*Utah.*/}}},{ "$group": {"_id": {"favouriteFruit":"$favoriteFruit"},"count": { "$sum": 1 }}}])
 { "_id" : { "favouriteFruit" : "strawberry" }, "count" : 3 }
-{ "_id" : { "favouriteFruit" : "banana" }, "count" : 5 }
+{ "_id" : { "favouriteFruit" : "apple" }, "count" : 6 }
+{ "_id" : { "favouriteFruit" : "banana" }, "count" : 6 }
 
+Я  буду работать с яблоком 
 
 6) Найти саммого раннего зарегистрировавшегося пользователя с таким любимым фруктом
 > db.users.find({favoriteFruit:{$regex:/apple/}},{_id:null, name:1, favoriteFruit:1, age:1, registered:1}).pretty()
@@ -160,7 +189,7 @@ local       0.078GB
 { "_id" : "strawberry", "firstRegistered" : "2014-01-02T02:39:51 -02:00" }
 { "_id" : "apple", "firstRegistered" : "2014-01-02T10:16:56 -02:00" }
 
-> db.users.aggregate([{$match:{favoriteFruit:{$regex:/apple/}}},{$group:{_id:'$favoriteFruit', firstRegistered: { $min: "$registered" }}},{_id:1,name:1,age:1,favoriteFruit:1,registered:1}])
+> db.users.aggregate([{$match:{favoriteFruit:{$regex:/apple/}}},{$group:{_id:'$favoriteFruit', firstRegistered: { $min: "$registered" }}}])
 { "_id" : "apple", "firstRegistered" : "2014-01-02T10:16:56 -02:00" }
 
 
@@ -193,25 +222,4 @@ WriteResult({ "nRemoved" : 253 })
 
 > db.users.find({favoriteFruit:{$eq:"strawberry"}}).count()
 0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
